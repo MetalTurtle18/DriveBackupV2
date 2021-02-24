@@ -26,6 +26,9 @@ public class Config {
     private static ZoneOffset backupScheduleTimezone;
     private static ArrayList<HashMap<String, Object>> backupScheduleList;
 
+    private static boolean remoteScheduleBackups;
+    private static ArrayList<HashMap<String, Object>> remoteBackupScheduleList;
+
     private static ZoneOffset backupFormatTimezone;
     private static ArrayList<HashMap<String, Object>> backupList;
 
@@ -96,6 +99,7 @@ public class Config {
         disableSavingDuringBackups = config.getBoolean("disable-saving-during-backups");
 
         scheduleBackups = config.getBoolean("scheduled-backups");
+        remoteScheduleBackups = config.getBoolean("different-remote-backup-schedule");
         backupScheduleTimezone = ZoneOffset.of(config.getString("schedule-timezone"));
         List<Map<?, ?>> rawBackupScheduleList = config.getMapList("backup-schedule-list");
         ArrayList<HashMap<String, Object>> parsedBackupScheduleList = new ArrayList<>();
@@ -110,6 +114,20 @@ public class Config {
             parsedBackupScheduleList.add(parsedBackupSchedule);
         }
         backupScheduleList = (ArrayList<HashMap<String, Object>>) parsedBackupScheduleList.clone();
+
+        List<Map<?, ?>> rawRemoteBackupScheduleList = config.getMapList("remote-backup-schedule-list");
+        ArrayList<HashMap<String, Object>> parsedRemoteBackupScheduleList = new ArrayList<>();
+        for (Map<?, ?> rawRemoteBackupSchedule: rawRemoteBackupScheduleList) {
+
+            HashMap<String, Object> parsedRemoteBackupSchedule = new HashMap<>();
+            for (Entry<?, ?> rawRemoteBackupScheduleProperty : rawRemoteBackupSchedule.entrySet()) {
+
+                parsedRemoteBackupSchedule.put((String) rawRemoteBackupScheduleProperty.getKey(), rawRemoteBackupScheduleProperty.getValue());
+            }
+
+            parsedRemoteBackupScheduleList.add(parsedRemoteBackupSchedule);
+        }
+        remoteBackupScheduleList = (ArrayList<HashMap<String, Object>>) parsedRemoteBackupScheduleList.clone();
 
         backupFormatTimezone = ZoneOffset.of(config.getString("backup-format-timezone"));
         if (config.isList("backup-list")) {
@@ -304,6 +322,14 @@ public class Config {
     }
 
     /**
+     * Gets whether remote backups have a different schedule
+     * @return whether it is different
+     */
+    public static boolean isRemoteScheduleBackupsDifferent() {
+        return remoteScheduleBackups;
+    }
+
+    /**
      * Gets the timezone of the schedule-based backup list
      * @return the timezone
      */
@@ -317,6 +343,14 @@ public class Config {
      */
     public static ArrayList<HashMap<String, Object>> getBackupScheduleList() {
         return backupScheduleList;
+    }
+
+    /**
+     * Gets the schedule-based backup list for remote backups
+     * @return the list
+     */
+    public static ArrayList<HashMap<String, Object>> getRemoteBackupScheduleList() {
+        return remoteBackupScheduleList;
     }
 
     /**
